@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
+import { cookies } from "next/headers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,36 +21,49 @@ export const metadata: Metadata = {
     "Dashboard for Tier 2 Supervisors to review Shamiri Fellow group sessions with AI-assisted insights.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const isSignedIn = cookieStore.get("mock_supervisor_auth")?.value === "1";
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <div className="min-h-screen bg-[color:var(--background)] text-[color:var(--foreground)]">
-          <header className="border-b border-slate-800 bg-slate-900 text-slate-50">
+          <header className="border-b border-[var(--brand--neutrals--stroke-grey)] bg-[var(--brand--neutrals--off-white-background)]">
             <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-              <div className="flex items-center gap-3">
-                <div className="relative h-8 w-8 rounded-md bg-slate-100">
-                  <span className="absolute left-1 top-1 h-2 w-2 rotate-45 bg-lime-400" />
-                  <span className="absolute right-1 bottom-1 h-2 w-2 rotate-45 bg-blue-700" />
-                </div>
-                <div>
-                  <div className="text-base font-semibold leading-tight tracking-wide text-white sm:text-lg">
-                    Shamiri Institute
-                  </div>
-                  <div className="text-xs text-slate-300">Supervisor Copilot</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-xs sm:flex-col sm:items-end sm:gap-1">
-                <div className="rounded-full bg-slate-800 px-3 py-1 text-[0.7rem] font-medium uppercase tracking-wide text-slate-100">
+              <Link href="/" className="flex items-center gap-2 transition-colors hover:opacity-90">
+                <Image
+                  src="/logo.png"
+                  alt="Shamiri"
+                  width={120}
+                  height={36}
+                  className="h-8 w-auto object-contain sm:h-9"
+                  priority
+                />
+                <span className="text-sm font-medium text-[var(--brand--color--lilac-purple)]">
+                  Supervisor Copilot
+                </span>
+              </Link>
+              <div className="flex items-center gap-3 text-xs sm:items-center">
+                <span className="rounded-full bg-[var(--brand--neutrals--card-grey)] px-3 py-1 text-[0.7rem] font-medium uppercase tracking-wide" style={{ color: "var(--text--default--black--navy-blue)" }}>
                   Tier 2 Supervisor
-                </div>
-                <div className="text-[0.7rem] text-slate-400">Mock account for demo</div>
+                </span>
+                {isSignedIn && (
+                  <form action="/api/auth/signout" method="POST">
+                    <button
+                      type="submit"
+                      className="btn-cta rounded-full px-4 py-2 text-[0.75rem] font-semibold disabled:opacity-70"
+                    >
+                      Sign out
+                    </button>
+                  </form>
+                )}
               </div>
             </div>
           </header>

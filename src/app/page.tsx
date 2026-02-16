@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { formatSessionDate } from "@/lib/datetime";
 
 type SessionListItem = {
   id: string;
@@ -10,13 +12,16 @@ type SessionListItem = {
   hasReview: boolean;
 };
 
-async function fetchSessions(): Promise<SessionListItem[]> {
+async function fetchSessions(cookieHeader: string): Promise<SessionListItem[]> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const res = await fetch(`${baseUrl ?? ""}/api/sessions`, {
     cache: "no-store",
+    headers: cookieHeader ? { cookie: cookieHeader } : undefined,
   });
 
   if (!res.ok) return [];
+  const contentType = res.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) return [];
   const data = await res.json();
   return data.sessions ?? [];
 }
@@ -32,6 +37,18 @@ function statusPill(status: string) {
   };
 
   return map[status] ?? "bg-slate-100 text-slate-700";
+}
+
+function statusLabel(status: string) {
+  const map: Record<string, string> = {
+    PENDING_ANALYSIS: "Pending analysis",
+    PROCESSED: "Awaiting supervisor review",
+    FLAGGED_FOR_REVIEW: "Flagged for review",
+    SAFE: "Reviewed",
+    RISK: "Reviewed",
+    NEEDS_DISCUSSION: "Needs discussion",
+  };
+  return map[status] ?? status.replace(/_/g, " ");
 }
 
 function riskBadge(status: string, riskFlag: "SAFE" | "RISK", compact = false) {
@@ -70,7 +87,8 @@ function riskBadge(status: string, riskFlag: "SAFE" | "RISK", compact = false) {
 }
 
 export default async function Home() {
-  const sessions = await fetchSessions();
+  const cookieHeader = (await cookies()).toString();
+  const sessions = await fetchSessions(cookieHeader);
   const pendingCount = sessions.filter((s) => s.status === "PENDING_ANALYSIS").length;
   const reviewedCount = sessions.filter((s) => s.hasReview).length;
 
@@ -103,18 +121,18 @@ export default async function Home() {
               <th className="px-4 py-3 text-left font-medium text-slate-500">Fellow</th>
               <th className="px-4 py-3 text-left font-medium text-slate-500">Group</th>
               <th className="px-4 py-3 text-left font-medium text-slate-500">Date</th>
-              <th className="px-4 py-3 text-left font-medium text-slate-500">Status</th>
+              <th className="px-4 py-3 text-left font-medium text-slate-500">Review status</th>
               <th className="px-4 py-3 text-left font-medium text-slate-500">Risk</th>
               <th className="px-4 py-3 text-right font-medium text-slate-500">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {sessions.map((session) => (
-              <tr key={session.id} className="hover:bg-slate-50">
+              <tr key={session.id} className="transition-colors hover:bg-slate-50/80">
                 <td className="px-4 py-3 font-medium text-slate-900">{session.fellowName}</td>
                 <td className="px-4 py-3 text-slate-700">{session.groupCode}</td>
                 <td className="px-4 py-3 text-slate-700">
-                  {new Date(session.completedAt).toLocaleString()}
+                  {formatSessionDate(session.completedAt)}
                 </td>
                 <td className="px-4 py-3">
                   <span
@@ -122,7 +140,7 @@ export default async function Home() {
                       session.status,
                     )}`}
                   >
-                    {session.status.replace(/_/g, " ")}
+                    {statusLabel(session.status)}
                   </span>
                 </td>
                 <td className="px-4 py-3">
@@ -131,7 +149,7 @@ export default async function Home() {
                 <td className="px-4 py-3 text-right">
                   <Link
                     href={`/sessions/${session.id}`}
-                    className="text-sm font-semibold text-slate-900 hover:text-slate-700"
+                    className="action-link text-sm font-semibold"
                   >
                     {session.hasReview ? "View decision" : "Review session"}
                   </Link>
@@ -154,13 +172,13 @@ export default async function Home() {
           <Link
             key={session.id}
             href={`/sessions/${session.id}`}
-            className="block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md"
+            className="block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300 hover:shadow-md active:scale-[0.99]"
           >
             <div className="flex items-start justify-between gap-2">
               <div>
                 <p className="text-sm font-semibold text-slate-900">{session.fellowName}</p>
                 <p className="mt-0.5 text-xs text-slate-600">
-                  Group {session.groupCode} • {new Date(session.completedAt).toLocaleString()}
+                  Group {session.groupCode} • {formatSessionDate(session.completedAt)}
                 </p>
               </div>
               <span
@@ -168,13 +186,13 @@ export default async function Home() {
                   session.status,
                 )}`}
               >
-                {session.status.replace(/_/g, " ")}
+                {statusLabel(session.status)}
               </span>
             </div>
 
             <div className="mt-3">{riskBadge(session.status, session.riskFlag, true)}</div>
 
-            <p className="mt-3 text-xs font-semibold text-slate-900">
+            <p className="mt-3 text-xs font-semibold text-[var(--brand--color--lilac-purple)] underline decoration-[var(--brand--color--lilac-purple)] underline-offset-2">
               {session.hasReview ? "View decision" : "Review session"}
             </p>
           </Link>

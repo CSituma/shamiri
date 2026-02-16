@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { AnalyzeButton } from "./AnalyzeButton";
 import { ReviewForm } from "./ReviewForm";
+import { formatSessionDate } from "@/lib/datetime";
 
 type SessionDetail = {
   id: string;
@@ -40,22 +42,28 @@ type SessionNavItem = {
   completedAt: string;
 };
 
-async function fetchSession(id: string): Promise<SessionDetail | null> {
+async function fetchSession(id: string, cookieHeader: string): Promise<SessionDetail | null> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const res = await fetch(`${baseUrl ?? ""}/api/sessions/${id}`, {
     cache: "no-store",
+    headers: cookieHeader ? { cookie: cookieHeader } : undefined,
   });
 
   if (!res.ok) return null;
+  const contentType = res.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) return null;
   return res.json();
 }
 
-async function fetchSessionNav(): Promise<SessionNavItem[]> {
+async function fetchSessionNav(cookieHeader: string): Promise<SessionNavItem[]> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const res = await fetch(`${baseUrl ?? ""}/api/sessions`, {
     cache: "no-store",
+    headers: cookieHeader ? { cookie: cookieHeader } : undefined,
   });
   if (!res.ok) return [];
+  const contentType = res.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) return [];
   const data = await res.json();
   return ((data.sessions ?? []) as SessionNavItem[]).map((s) => ({
     id: s.id,
@@ -78,7 +86,7 @@ function TopRiskBadge(session: SessionDetail) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-800">
         <span className="h-2 w-2 rounded-full bg-red-500" />
-        AI flagged: Risk
+        Risk
       </span>
     );
   }
@@ -86,22 +94,35 @@ function TopRiskBadge(session: SessionDetail) {
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
       <span className="h-2 w-2 rounded-full bg-emerald-500" />
-      AI flagged: Safe
+      Safe
     </span>
   );
 }
 
+function reviewStatusLabel(status: string) {
+  const map: Record<string, string> = {
+    PENDING_ANALYSIS: "Pending analysis",
+    PROCESSED: "Awaiting supervisor review",
+    FLAGGED_FOR_REVIEW: "Flagged for review",
+    SAFE: "Reviewed",
+    RISK: "Reviewed",
+    NEEDS_DISCUSSION: "Needs discussion",
+  };
+  return map[status] ?? status.replace(/_/g, " ");
+}
+
 export default async function SessionPage({ params }: PageProps) {
   const { id } = await params;
-  const [session, navSessions] = await Promise.all([fetchSession(id), fetchSessionNav()]);
+  const cookieHeader = (await cookies()).toString();
+  const [session, navSessions] = await Promise.all([
+    fetchSession(id, cookieHeader),
+    fetchSessionNav(cookieHeader),
+  ]);
 
   if (!session) {
     return (
       <div className="flex w-full flex-col">
-        <Link
-          href="/"
-          className="mb-4 text-sm font-semibold text-slate-900 hover:text-slate-700"
-        >
+        <Link href="/" className="link-nav mb-4 text-sm font-semibold">
           ← Back to sessions
         </Link>
         <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
@@ -111,7 +132,7 @@ export default async function SessionPage({ params }: PageProps) {
     );
   }
 
-  const completedDate = new Date(session.completedAt).toLocaleString();
+  const completedDate = formatSessionDate(session.completedAt);
   const currentIndex = navSessions.findIndex((s) => s.id === session.id);
   const prevSession = currentIndex >= 0 ? navSessions[currentIndex + 1] : null;
   const nextSession = currentIndex > 0 ? navSessions[currentIndex - 1] : null;
@@ -119,14 +140,14 @@ export default async function SessionPage({ params }: PageProps) {
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Link href="/" className="text-sm font-semibold text-slate-900 hover:text-slate-700">
+        <Link href="/" className="link-nav text-sm font-semibold">
           ← Back to sessions
         </Link>
         <div className="flex items-center gap-2">
           {prevSession ? (
             <Link
               href={`/sessions/${prevSession.id}`}
-              className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-500"
+              className="action-link rounded-full border border-[var(--brand--color--lilac-purple)] bg-white px-3 py-1.5 text-xs font-semibold transition-colors hover:border-[var(--brand--color--navy-blue)]"
             >
               Previous session
             </Link>
@@ -138,7 +159,7 @@ export default async function SessionPage({ params }: PageProps) {
           {nextSession ? (
             <Link
               href={`/sessions/${nextSession.id}`}
-              className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-500"
+              className="action-link rounded-full border border-[var(--brand--color--lilac-purple)] bg-white px-3 py-1.5 text-xs font-semibold transition-colors hover:border-[var(--brand--color--navy-blue)]"
             >
               Next session
             </Link>
@@ -164,7 +185,7 @@ export default async function SessionPage({ params }: PageProps) {
               </div>
               <div className="flex flex-col items-start gap-2 sm:items-end">
                 <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-[0.7rem] font-medium text-slate-700">
-                  {session.status.replace(/_/g, " ")}
+                  {reviewStatusLabel(session.status)}
                 </span>
                 <TopRiskBadge {...session} />
               </div>
@@ -202,7 +223,7 @@ export default async function SessionPage({ params }: PageProps) {
             currentStatus={session.status}
             existingReview={session.supervisorReview}
           />
-          <aside className="rounded-2xl border border-slate-200 bg-white p-4 text-xs text-slate-600 shadow-sm">
+          <aside className="rounded-2xl border border-slate-200 bg-yellow-50 p-4 text-xs text-slate-600 shadow-sm">
             <p className="font-semibold text-slate-800">About this Copilot</p>
             <p className="mt-1">
               AI is used to summarize sessions, score quality, and flag possible risk. It does not

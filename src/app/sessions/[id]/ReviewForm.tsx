@@ -144,7 +144,7 @@ export function ReviewForm({
         <button
           type="submit"
           disabled={saving}
-          className="inline-flex items-center rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-700 disabled:opacity-70"
+          className="btn-cta inline-flex items-center rounded-full px-4 py-2 text-xs font-semibold disabled:opacity-70"
         >
           {saving ? "Saving…" : "Save decision"}
         </button>
