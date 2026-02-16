@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { cookies } from "next/headers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,11 +19,14 @@ export const metadata: Metadata = {
     "Dashboard for Tier 2 Supervisors to review Shamiri Fellow group sessions with AI-assisted insights.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const isSignedIn = cookieStore.get("mock_supervisor_auth")?.value === "1";
+
   return (
     <html lang="en">
       <body
@@ -48,6 +52,16 @@ export default function RootLayout({
                   Tier 2 Supervisor
                 </div>
                 <div className="text-[0.7rem] text-slate-400">Mock account for demo</div>
+                {isSignedIn && (
+                  <form action="/api/auth/signout" method="POST">
+                    <button
+                      type="submit"
+                      className="mt-1 rounded-full border border-slate-600 px-3 py-1 text-[0.7rem] font-medium text-slate-200 hover:bg-slate-800"
+                    >
+                      Sign out
+                    </button>
+                  </form>
+                )}
               </div>
             </div>
           </header>
