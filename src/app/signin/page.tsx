@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { SignInForm } from "./SignInForm";
 
 export default async function SignInPage() {
   const cookieStore = await cookies();
@@ -9,25 +10,17 @@ export default async function SignInPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-        Shamiri Supervisor Copilot
+    <div className="mx-auto flex w-full max-w-md flex-col rounded-2xl border border-[var(--brand--neutrals--stroke-grey)] bg-white p-6 shadow-sm">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand--color--lilac-purple)" }}>
+        shamiri Supervisor Copilot
       </p>
-      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
-        Mock sign in
+      <h1 className="mt-2 text-2xl font-semibold tracking-tight" style={{ color: "var(--text--default--black--navy-blue)" }}>
+        Admin sign in
       </h1>
       <p className="mt-2 text-sm text-slate-600">
-        This demo uses a mock Tier 2 Supervisor account. Continue to access the dashboard.
+        Sign in with the configured admin email and password to access the dashboard.
       </p>
-
-      <form action="/api/auth/mock-signin" method="POST" className="mt-5">
-        <button
-          type="submit"
-          className="inline-flex w-full items-center justify-center rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700"
-        >
-          Continue as Tier 2 Supervisor
-        </button>
-      </form>
+      <SignInForm />
     </div>
   );
 }

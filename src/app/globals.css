@@ -1,13 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #faf9fe;
+  --foreground: #132964;
+
+  /* Brand tokens */
+  --brand--neutrals--off-white: #faf9fe;
+  --text--default--black--navy-blue: #132964;
+  --brand--color--lime: #b8e91a;
+  --text--default--black-medium: #132964;
+  --text--default--black-light: #9a8ee6;
+  --brand--primary--action: #faf9fe;
+  --brand--neutrals--grey-dark: #d7d2fd;
+  --brand--color--lilac-purple: #9a8ee6;
+  --brand--primary--action-hover: #3e3f416b;
+  --brand--primary--action-pressed: #d7d2fd;
+  --brand--neutrals--transparent: #fff0;
+  --brand--neutrals--off-white-background: #faf9fe;
+  --brand--neutrals--navy-blue: #132964;
+  --brand--color--navy-blue: #132964;
+  --brand--neutrals--card-grey: #ebe8fa;
+  --brand--color--purple-light: #ebe8fa;
+  --brand--neutrals--stroke-grey: #ebe8fa;
+  --brand--color--lime-light: #f1fbd1;
+  --brand--color--magenta-light: #f7d1e9;
+  --brand--color--magenta: #d91892;
+  --brand--color--blue-light: #d0d4e0;
+  --brand--color--red: #ca4949;
+  --brand--color--red-light: #f8e2e2;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand-lilac: var(--brand--color--lilac-purple);
+  --color-brand-navy: var(--brand--color--navy-blue);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -15,4 +42,57 @@
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* CTA buttons – white bg, lilac border & text (like Shamiri "Get Involved") */
+.btn-cta {
+  background-color: var(--brand--primary--action);
+  color: var(--brand--color--lilac-purple);
+  border: 1px solid var(--brand--color--lilac-purple);
+  transition: all 0.3s;
+}
+.btn-cta:hover:not(:disabled) {
+  background-color: var(--brand--neutrals--card-grey);
+  color: var(--brand--color--lilac-purple);
+  border-color: var(--brand--color--lilac-purple);
+}
+.btn-cta:active:not(:disabled) {
+  background-color: var(--brand--primary--action-pressed);
+  color: var(--text--default--black--navy-blue);
+  border-color: var(--brand--color--lilac-purple);
+}
+
+/* Nav links – navy blue, no underline (matches Shamiri site) */
+a.link-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.4rem;
+  color: var(--text--default--black--navy-blue);
+  text-decoration: none;
+  transition: all 0.3s;
+}
+a.link-nav:hover {
+  color: var(--brand--color--lilac-purple);
+}
+
+/* Action links – brand lilac (View decision, Review session) */
+a.action-link {
+  color: var(--brand--color--lilac-purple);
+  text-underline-offset: 2px;
+  text-decoration-color: var(--brand--color--lilac-purple);
+  transition: all 0.3s;
+}
+a.action-link:hover {
+  color: var(--brand--color--navy-blue);
+  text-decoration-color: var(--brand--color--navy-blue);
+}
+/* Pill-style action links (Previous/Next) – no underline */
+a.action-link.rounded-full {
+  text-decoration: none;
 }

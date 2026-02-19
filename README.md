@@ -29,12 +29,15 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
 DIRECT_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE"
 GROQ_API_KEY="gsk-..."
 NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+ADMIN_EMAIL="admin@shamiri.local"
+ADMIN_PASSWORD="admin1234"
 ```
 
 - **DATABASE_URL**: Any Postgres instance (local or hosted like Neon, Supabase, Railway).
 - **DIRECT_URL**: Direct connection string used by Prisma migrations when you're behind a connection pooler.
 - **GROQ_API_KEY**: Groq key with access to the chosen chat model (e.g. `llama-3.3-70b-versatile`).
 - **NEXT_PUBLIC_BASE_URL**: Used by server components to call the local API routes.
+- **ADMIN_EMAIL** / **ADMIN_PASSWORD**: Simple mock login credentials for the locked admin sign-in screen.
 
 ### 3. Run migrations and generate Prisma client
 
