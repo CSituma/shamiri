@@ -2,7 +2,15 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { AnalyzeButton } from "./AnalyzeButton";
 import { ReviewForm } from "./ReviewForm";
-import { formatSessionDate } from "@/lib/datetime";
+
+function formatSessionDate(value: string | Date) {
+  const date = value instanceof Date ? value : new Date(value);
+  return new Intl.DateTimeFormat("en-KE", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: process.env.SESSION_TIME_ZONE ?? "Africa/Nairobi",
+  }).format(date);
+}
 
 type SessionDetail = {
   id: string;
@@ -179,7 +187,7 @@ export default async function SessionPage({ params }: PageProps) {
                 <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
                   {session.fellowName}
                 </h1>
-                <p className="mt-1 text-sm text-slate-600">
+                <p className="mt-1 text-sm text-slate-600" suppressHydrationWarning>
                   Group {session.groupCode} • {completedDate}
                 </p>
               </div>
