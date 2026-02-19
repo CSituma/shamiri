@@ -2,7 +2,15 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { AnalyzeButton } from "./AnalyzeButton";
 import { ReviewForm } from "./ReviewForm";
-import { formatSessionDate } from "@/lib/datetime";
+
+function formatSessionDate(value: string | Date) {
+  const date = value instanceof Date ? value : new Date(value);
+  return new Intl.DateTimeFormat("en-KE", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: process.env.SESSION_TIME_ZONE ?? "Africa/Nairobi",
+  }).format(date);
+}
 
 type SessionDetail = {
   id: string;
