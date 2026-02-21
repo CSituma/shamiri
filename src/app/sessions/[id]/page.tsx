@@ -253,7 +253,7 @@ function AIInsights({
     <div className="mt-4 space-y-4 text-sm text-slate-800">
       <div className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-slate-50">
         <span className="h-2 w-2 rounded-full bg-emerald-400" />
-        AI analysis complete
+        Analysis complete
       </div>
 
       <p>{analysis.summary}</p>

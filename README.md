@@ -114,9 +114,9 @@ Supervisors can trigger AI analysis from the session page. While this assignment
 
 ---
 
-## Deployment (Vercel + hosted Postgres)
+## Deployment (Vercel + Supabase)
 
-1. **Create a hosted Postgres database** (e.g., Neon, Supabase, Railway) and copy the connection string.
+1. **Create a Supabase project** and copy the Postgres connection strings (Settings → Database).
 2. **Push your repo to GitHub**.
 3. **Create a new Vercel project** from the repo.
 4. In Vercel project settings, add environment variables:
@@ -125,16 +125,25 @@ Supervisors can trigger AI analysis from the session page. While this assignment
    - `DIRECT_URL` (if needed for migrations)
    - `GROQ_API_KEY`
    - `NEXT_PUBLIC_BASE_URL` = your production URL (e.g., `https://shamiri-supervisor.vercel.app`)
+   - `ADMIN_EMAIL` and `ADMIN_PASSWORD` (for mock sign-in)
+   - `SESSION_TIME_ZONE` (optional, e.g. `Africa/Nairobi` for date formatting; defaults to `Africa/Nairobi`)
 
-5. In a one-off Vercel build or via local CLI:
+5. Run migrations (one-off, locally or in build):
 
    ```bash
    npx prisma migrate deploy
    npx prisma generate
-   npm run prisma:seed   # Preferably run locally pointing at the production DB
    ```
 
-6. Trigger a deployment; the app should be available at your Vercel URL.
+6. **Seed the production database** (run locally, once):
+
+   ```bash
+   cp env.production.example .env.production
+   # Edit .env.production – paste DATABASE_URL and DIRECT_URL from Vercel
+   npm run prisma:seed:prod
+   ```
+
+7. Trigger a deployment; the app should be available at your Vercel URL.
 
 ---
 

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
-// For this assignment we use a single mock supervisor.
 async function getCurrentSupervisorId() {
   const supervisor = await prisma.supervisor.findFirst();
   return supervisor?.id ?? null;
