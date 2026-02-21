@@ -187,7 +187,7 @@ export default async function SessionPage({ params }: PageProps) {
                 <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
                   {session.fellowName}
                 </h1>
-                <p className="mt-1 text-sm text-slate-600">
+                <p className="mt-1 text-sm text-slate-600" suppressHydrationWarning>
                   Group {session.groupCode} • {completedDate}
                 </p>
               </div>

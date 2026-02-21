@@ -101,7 +101,7 @@ export default async function Home() {
   const reviewedCount = sessions.filter((s) => s.hasReview).length;
 
   return (
-    <div className="flex w-full flex-col gap-5">
+    <div className="flex w-full flex-col gap-5" suppressHydrationWarning>
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
           Completed Sessions
@@ -139,7 +139,7 @@ export default async function Home() {
               <tr key={session.id} className="transition-colors hover:bg-slate-50/80">
                 <td className="px-4 py-3 font-medium text-slate-900">{session.fellowName}</td>
                 <td className="px-4 py-3 text-slate-700">{session.groupCode}</td>
-                <td className="px-4 py-3 text-slate-700">
+                <td className="px-4 py-3 text-slate-700" suppressHydrationWarning>
                   {formatSessionDate(session.completedAt)}
                 </td>
                 <td className="px-4 py-3">
@@ -185,7 +185,7 @@ export default async function Home() {
             <div className="flex items-start justify-between gap-2">
               <div>
                 <p className="text-sm font-semibold text-slate-900">{session.fellowName}</p>
-                <p className="mt-0.5 text-xs text-slate-600">
+                <p className="mt-0.5 text-xs text-slate-600" suppressHydrationWarning>
                   Group {session.groupCode} • {formatSessionDate(session.completedAt)}
                 </p>
               </div>
