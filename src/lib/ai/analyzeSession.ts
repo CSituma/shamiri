@@ -1,6 +1,6 @@
 import Groq from 'groq-sdk';
 import { prisma } from '../db';
-import { Prisma } from '../../generated/prisma/client';
+import { Prisma } from '@prisma/client';
 import { aiAnalysisSchema, AIAnalysisPayload } from './schema';
 import { shamiriSystemPrompt } from './prompt';
 

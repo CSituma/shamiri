@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { PrismaClient, SessionStatus } from '../src/generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -125,7 +125,7 @@ async function main() {
       supervisorId: supervisor.id,
       scheduledAt: new Date(now.getTime() - (i + 1) * 2 * 60 * 60 * 1000),
       completedAt: new Date(now.getTime() - (i + 1) * 60 * 60 * 1000),
-      status: SessionStatus.PENDING_ANALYSIS,
+      status: 'PENDING_ANALYSIS',
       transcript: buildTranscript({ includeRisk, strength }),
     });
   }
