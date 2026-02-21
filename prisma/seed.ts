@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { PrismaClient, SessionStatus } from '../src/generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -72,17 +72,16 @@ Fellow: As we close, remember that your brain is like a muscle. Every time you p
 Fellow: Thank you all for participating and supporting each other today.
 `;
 
-  // Repeat some sections to approximate a long 40–60 minute style transcript.
   return (intro + middle + middle + outro).trim();
 }
 
 async function main() {
-  await prisma.supervisor.deleteMany();
-  await prisma.fellow.deleteMany();
-  await prisma.group.deleteMany();
-  await prisma.session.deleteMany();
-  await prisma.supervisorReview.deleteMany();
   await prisma.aIAnalysis.deleteMany();
+  await prisma.supervisorReview.deleteMany();
+  await prisma.session.deleteMany();
+  await prisma.group.deleteMany();
+  await prisma.fellow.deleteMany();
+  await prisma.supervisor.deleteMany();
 
   const supervisor = await prisma.supervisor.create({
     data: {
@@ -126,7 +125,7 @@ async function main() {
       supervisorId: supervisor.id,
       scheduledAt: new Date(now.getTime() - (i + 1) * 2 * 60 * 60 * 1000),
       completedAt: new Date(now.getTime() - (i + 1) * 60 * 60 * 1000),
-      status: SessionStatus.PENDING_ANALYSIS,
+      status: 'PENDING_ANALYSIS' as const,
       transcript: buildTranscript({ includeRisk, strength }),
     });
   }
@@ -136,7 +135,7 @@ async function main() {
   console.log('Database seeded with supervisors, fellows, groups, and sessions.');
 }
 
-main()
+export const seedPromise = main()
   .catch((e) => {
     console.error(e);
     process.exit(1);

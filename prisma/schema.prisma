@@ -1,12 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -16,71 +10,56 @@ datasource db {
 }
 
 model Supervisor {
-  id        String    @id @default(cuid())
+  id        String             @id @default(cuid())
   name      String
-  email     String?   @unique
+  email     String?            @unique
   tier      String
+  createdAt DateTime           @default(now())
   groups    Group[]
   sessions  Session[]
   reviews   SupervisorReview[]
-  createdAt DateTime  @default(now())
 }
 
 model Fellow {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   name      String
+  createdAt DateTime  @default(now())
   groups    Group[]
   sessions  Session[]
-  createdAt DateTime @default(now())
 }
 
 model Group {
   id           String     @id @default(cuid())
   code         String     @unique
-  fellow       Fellow     @relation(fields: [fellowId], references: [id])
   fellowId     String
-  supervisor   Supervisor @relation(fields: [supervisorId], references: [id])
   supervisorId String
-  sessions     Session[]
   createdAt    DateTime   @default(now())
-}
-
-enum SessionStatus {
-  PENDING_ANALYSIS
-  PROCESSED
-  FLAGGED_FOR_REVIEW
-  SAFE
-  RISK
-  NEEDS_DISCUSSION
+  fellow       Fellow     @relation(fields: [fellowId], references: [id])
+  supervisor   Supervisor @relation(fields: [supervisorId], references: [id])
+  sessions     Session[]
 }
 
 model Session {
-  id               String           @id @default(cuid())
-  group            Group            @relation(fields: [groupId], references: [id])
+  id               String            @id @default(cuid())
   groupId          String
-  fellow           Fellow           @relation(fields: [fellowId], references: [id])
   fellowId         String
-  supervisor       Supervisor       @relation(fields: [supervisorId], references: [id])
   supervisorId     String
   scheduledAt      DateTime
   completedAt      DateTime
-  status           SessionStatus    @default(PENDING_ANALYSIS)
+  status           SessionStatus     @default(PENDING_ANALYSIS)
   transcript       String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   aiAnalysis       AIAnalysis?
+  fellow           Fellow            @relation(fields: [fellowId], references: [id])
+  group            Group             @relation(fields: [groupId], references: [id])
+  supervisor       Supervisor        @relation(fields: [supervisorId], references: [id])
   supervisorReview SupervisorReview?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-}
-
-enum RiskFlag {
-  SAFE
-  RISK
 }
 
 model AIAnalysis {
-  id                       String     @id @default(cuid())
-  session                  Session    @relation(fields: [sessionId], references: [id])
-  sessionId                String     @unique
+  id                       String   @id @default(cuid())
+  sessionId                String   @unique
   summary                  String
   contentCoverageScore     Int
   contentCoverageRationale String
@@ -92,7 +71,34 @@ model AIAnalysis {
   riskQuote                String?
   riskRationale            String
   rawModelResponse         Json?
-  createdAt                DateTime   @default(now())
+  createdAt                DateTime @default(now())
+  session                  Session  @relation(fields: [sessionId], references: [id])
+}
+
+model SupervisorReview {
+  id           String         @id @default(cuid())
+  sessionId    String         @unique
+  supervisorId String
+  finalStatus  FinalStatus
+  decision     ReviewDecision
+  note         String?
+  createdAt    DateTime       @default(now())
+  session      Session        @relation(fields: [sessionId], references: [id])
+  supervisor   Supervisor     @relation(fields: [supervisorId], references: [id])
+}
+
+enum SessionStatus {
+  PENDING_ANALYSIS
+  PROCESSED
+  FLAGGED_FOR_REVIEW
+  SAFE
+  RISK
+  NEEDS_DISCUSSION
+}
+
+enum RiskFlag {
+  SAFE
+  RISK
 }
 
 enum ReviewDecision {
@@ -104,16 +110,4 @@ enum FinalStatus {
   SAFE
   RISK
   NEEDS_DISCUSSION
-}
-
-model SupervisorReview {
-  id           String        @id @default(cuid())
-  session      Session       @relation(fields: [sessionId], references: [id])
-  sessionId    String        @unique
-  supervisor   Supervisor    @relation(fields: [supervisorId], references: [id])
-  supervisorId String
-  finalStatus  FinalStatus
-  decision     ReviewDecision
-  note         String?
-  createdAt    DateTime      @default(now())
 }

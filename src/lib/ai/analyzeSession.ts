@@ -1,6 +1,6 @@
 import Groq from 'groq-sdk';
 import { prisma } from '../db';
-import { Prisma } from '../../generated/prisma/client';
+import { Prisma } from '@prisma/client';
 import { aiAnalysisSchema, AIAnalysisPayload } from './schema';
 import { shamiriSystemPrompt } from './prompt';
 
@@ -34,7 +34,6 @@ export async function analyzeSessionTranscript(sessionId: string): Promise<AIAna
   const transcript = session.transcript;
 
   const completion = await groq.chat.completions.create({
-    // Use a current Groq-supported Llama 3 model
     model: 'llama-3.3-70b-versatile',
     messages: [
       { role: 'system', content: shamiriSystemPrompt },
@@ -43,9 +42,6 @@ export async function analyzeSessionTranscript(sessionId: string): Promise<AIAna
         content: `Here is the transcript of the session:\n\n${transcript}`,
       },
     ],
-    // Groq does not yet support OpenAI's json_schema response_format,
-    // so we instruct the model via the prompt to return ONLY valid JSON
-    // and then enforce the structure with Zod.
     temperature: 0.1,
   });
 
@@ -56,7 +52,6 @@ export async function analyzeSessionTranscript(sessionId: string): Promise<AIAna
 
   let parsed: unknown;
   try {
-    // Some models may wrap JSON in markdown fences like ```json ... ```.
     const cleaned = raw
       .trim()
       .replace(/^```(?:json)?\s*/i, '')
@@ -79,7 +74,6 @@ export async function analyzeSessionTranscript(sessionId: string): Promise<AIAna
   const payload = result.data;
   const rawModelResponse = parsed as Prisma.InputJsonValue;
 
-  // Persist analysis to the database.
   await prisma.aIAnalysis.upsert({
     where: { sessionId: session.id },
     update: {

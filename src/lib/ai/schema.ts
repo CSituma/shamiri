@@ -23,7 +23,6 @@ export const aiAnalysisSchema = z.object({
 
 export type AIAnalysisPayload = z.infer<typeof aiAnalysisSchema>;
 
-// Minimal JSON schema for OpenAI response_format enforcement.
 export const aiAnalysisJsonSchema = {
   name: 'shamiri_session_analysis',
   schema: {

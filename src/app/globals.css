@@ -4,7 +4,6 @@
   --background: #faf9fe;
   --foreground: #132964;
 
-  /* Brand tokens */
   --brand--neutrals--off-white: #faf9fe;
   --text--default--black--navy-blue: #132964;
   --brand--color--lime: #b8e91a;
@@ -44,7 +43,6 @@ body {
   color: var(--foreground);
 }
 
-/* CTA buttons – white bg, lilac border & text (like Shamiri "Get Involved") */
 .btn-cta {
   background-color: var(--brand--primary--action);
   color: var(--brand--color--lilac-purple);
@@ -62,7 +60,6 @@ body {
   border-color: var(--brand--color--lilac-purple);
 }
 
-/* Nav links – navy blue, no underline (matches Shamiri site) */
 a.link-nav {
   display: flex;
   align-items: center;
@@ -81,7 +78,6 @@ a.link-nav:hover {
   color: var(--brand--color--lilac-purple);
 }
 
-/* Action links – brand lilac (View decision, Review session) */
 a.action-link {
   color: var(--brand--color--lilac-purple);
   text-underline-offset: 2px;
@@ -92,7 +88,6 @@ a.action-link:hover {
   color: var(--brand--color--navy-blue);
   text-decoration-color: var(--brand--color--navy-blue);
 }
-/* Pill-style action links (Previous/Next) – no underline */
 a.action-link.rounded-full {
   text-decoration: none;
 }

@@ -7,7 +7,6 @@ type Params = {
   }>;
 };
 
-// Simple mock supervisor scoping.
 async function getCurrentSupervisorId() {
   const supervisor = await prisma.supervisor.findFirst();
   return supervisor?.id ?? null;
