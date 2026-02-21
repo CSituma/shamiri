@@ -125,7 +125,7 @@ async function main() {
       supervisorId: supervisor.id,
       scheduledAt: new Date(now.getTime() - (i + 1) * 2 * 60 * 60 * 1000),
       completedAt: new Date(now.getTime() - (i + 1) * 60 * 60 * 1000),
-      status: 'PENDING_ANALYSIS',
+      status: 'PENDING_ANALYSIS' as const,
       transcript: buildTranscript({ includeRisk, strength }),
     });
   }
