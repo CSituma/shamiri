@@ -49,7 +49,7 @@ function statusPill(status: string) {
 
 function statusLabel(status: string) {
   const map: Record<string, string> = {
-    PENDING_ANALYSIS: "Pending analysis",
+    PENDING_ANALYSIS: "Pending review",
     PROCESSED: "Awaiting supervisor review",
     FLAGGED_FOR_REVIEW: "Flagged for review",
     SAFE: "Reviewed",
@@ -107,14 +107,14 @@ export default async function Home() {
           Completed Sessions
         </h1>
         <p className="mt-1 text-sm text-slate-600">
-          Review Shamiri Fellow sessions with AI summaries, risk flags, and supervisor decisions.
+          Review Shamiri Fellow sessions with structured summaries, risk flags, and supervisor decisions.
         </p>
         <div className="mt-4 grid grid-cols-1 gap-2 text-xs sm:grid-cols-3">
           <div className="rounded-lg bg-slate-50 px-3 py-2 text-slate-700">
             Total sessions: <span className="font-semibold text-slate-900">{sessions.length}</span>
           </div>
           <div className="rounded-lg bg-slate-50 px-3 py-2 text-slate-700">
-            Pending analysis: <span className="font-semibold text-slate-900">{pendingCount}</span>
+            Pending review: <span className="font-semibold text-slate-900">{pendingCount}</span>
           </div>
           <div className="rounded-lg bg-slate-50 px-3 py-2 text-slate-700">
             Reviewed: <span className="font-semibold text-slate-900">{reviewedCount}</span>

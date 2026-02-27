@@ -109,7 +109,7 @@ function TopRiskBadge(session: SessionDetail) {
 
 function reviewStatusLabel(status: string) {
   const map: Record<string, string> = {
-    PENDING_ANALYSIS: "Pending analysis",
+    PENDING_ANALYSIS: "Pending review",
     PROCESSED: "Awaiting supervisor review",
     FLAGGED_FOR_REVIEW: "Flagged for review",
     SAFE: "Reviewed",
@@ -232,10 +232,10 @@ export default async function SessionPage({ params }: PageProps) {
             existingReview={session.supervisorReview}
           />
           <aside className="rounded-2xl border border-slate-200 bg-yellow-50 p-4 text-xs text-slate-600 shadow-sm">
-            <p className="font-semibold text-slate-800">About this Copilot</p>
+            <p className="font-semibold text-slate-800">About this assistant</p>
             <p className="mt-1">
-              AI is used to summarize sessions, score quality, and flag possible risk. It does not
-              replace clinical judgment. Your review and final decision always override the AI.
+              This tool summarizes sessions, scores quality, and flags possible risk using AI. It does not
+              replace clinical judgment. Your review and final decision always override any automated suggestion.
             </p>
           </aside>
         </section>
