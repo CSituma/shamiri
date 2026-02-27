@@ -12,7 +12,7 @@ export default async function SignInPage() {
   return (
     <div className="mx-auto flex w-full max-w-md flex-col rounded-2xl border border-[var(--brand--neutrals--stroke-grey)] bg-white p-6 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--brand--color--lilac-purple)" }}>
-        shamiri Supervisor Copilot
+        Shamiri Supervisor Review Tool
       </p>
       <h1 className="mt-2 text-2xl font-semibold tracking-tight" style={{ color: "var(--text--default--black--navy-blue)" }}>
         Admin sign in

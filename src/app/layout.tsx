@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Shamiri Supervisor Copilot",
+  title: "Shamiri Supervisor Review Tool",
   description:
-    "Dashboard for Tier 2 Supervisors to review Shamiri Fellow group sessions with AI-assisted insights.",
+    "Dashboard for supervisors to review Shamiri Fellow group sessions.",
 };
 
 export default async function RootLayout({
@@ -36,8 +36,8 @@ export default async function RootLayout({
       >
         <div className="min-h-screen bg-[color:var(--background)] text-[color:var(--foreground)]">
           <header className="border-b border-[var(--brand--neutrals--stroke-grey)] bg-[var(--brand--neutrals--off-white-background)]">
-            <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-              <Link href="/" className="flex items-center gap-2 transition-colors hover:opacity-90">
+            <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
+              <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-90">
                 <Image
                   src="/logo.png"
                   alt="Shamiri"
@@ -47,24 +47,19 @@ export default async function RootLayout({
                   priority
                 />
                 <span className="text-sm font-medium text-[var(--brand--color--lilac-purple)]">
-                  Supervisor Copilot
+                  Supervisor Review Tool
                 </span>
               </Link>
-              <div className="flex items-center gap-3 text-xs sm:items-center">
-                <span className="rounded-full bg-[var(--brand--neutrals--card-grey)] px-3 py-1 text-[0.7rem] font-medium uppercase tracking-wide" style={{ color: "var(--text--default--black--navy-blue)" }}>
-                  Tier 2 Supervisor
-                </span>
-                {isSignedIn && (
-                  <form action="/api/auth/signout" method="POST">
-                    <button
-                      type="submit"
-                      className="btn-cta rounded-full px-4 py-2 text-[0.75rem] font-semibold disabled:opacity-70"
-                    >
-                      Sign out
-                    </button>
-                  </form>
-                )}
-              </div>
+              {isSignedIn && (
+                <form action="/api/auth/signout" method="POST">
+                  <button
+                    type="submit"
+                    className="btn-cta rounded-full px-4 py-2 text-[0.75rem] font-semibold disabled:opacity-70"
+                  >
+                    Sign out
+                  </button>
+                </form>
+              )}
             </div>
           </header>
           <main className="mx-auto flex w-full max-w-6xl flex-1 px-4 py-5 sm:px-6 lg:px-8">
