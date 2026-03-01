@@ -21,7 +21,7 @@ export function AnalyzeButton({ sessionId }: { sessionId: string }) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error ?? "Analysis failed");
       }
-      setSuccess("AI analysis generated successfully.");
+      setSuccess("Analysis generated successfully.");
       setTimeout(() => {
         router.refresh();
       }, 900);

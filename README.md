@@ -1,13 +1,15 @@
-## Shamiri Supervisor Copilot
+## Shamiri Supervisor Review Tool
 
-A mini-product to help Tier 2 Supervisors review Shamiri Fellow group sessions using structured AI analysis. Supervisors can see a dashboard of completed sessions, open a session to view an AI-generated Session Insight Card, and then validate or override the AI’s recommendations.
+A small internal-style tool to help supervisors review Shamiri Fellow group sessions. Supervisors see a list of completed sessions, open a session to view a structured Session Insight card, and record a final supervision decision.
+
+This is a **mock supervision environment**. All transcripts are synthetic and do not contain real participant data. The goal is to demonstrate an MVP, with product thinking, backend modelling, and human-in-the-loop oversight rather than deploy a production clinical tool.
 
 ### Tech stack
 
 - **Framework**: Next.js App Router (TypeScript)
-- **Database**: PostgreSQL via Prisma ORM
+- **LLM**: Groq API (using Llama 3-70B)
+- **Database**: PostgreSQL via Prisma ORM ( Supabase)
 - **Styling**: Tailwind CSS
-- **AI**: Groq Chat Completions (LLaMA 3.3) with JSON-only responses + Zod validation
 
 ---
 
@@ -38,6 +40,15 @@ ADMIN_PASSWORD="admin1234"
 - **GROQ_API_KEY**: Groq key with access to the chosen chat model (e.g. `llama-3.3-70b-versatile`).
 - **NEXT_PUBLIC_BASE_URL**: Used by server components to call the local API routes.
 - **ADMIN_EMAIL** / **ADMIN_PASSWORD**: Simple mock login credentials for the locked admin sign-in screen.
+
+### 2a. Mock login for reviewers
+
+For local and dev runs, you can sign in with:
+
+- Email: `admin@shamiri.local`
+- Password: `admin1234`
+
+These credentials are only for this sandbox; there is no real user data or integration with Shamiri’s production systems.
 
 ### 3. Run migrations and generate Prisma client
 
@@ -80,12 +91,12 @@ Open `http://localhost:3000` to access the Supervisor dashboard.
 - Shows **Fellow name**, **Group ID**, **date/time**, **status**, and **risk badge** (`Safe` / `Risk`).
 - Clicking a row opens the **Session Detail** view.
 
-### Session Detail & AI Insight Card
+### Session Detail & Insight card
 
 For each session:
 
-- **Header**: Fellow, Group ID, date, current status, AI risk flag.
-- **Session Insight Card** (AI-generated):
+- **Header**: Fellow, Group ID, date, current status, and risk flag.
+- **Session Insight card**:
   - 3-sentence **summary** of the session.
   - **Content Coverage** score (1–3) with rationale.
   - **Facilitation Quality** score (1–3) with rationale.
@@ -95,12 +106,7 @@ For each session:
     - If `RISK`, shows a short **quote** from the transcript and a brief explanation.
 - **Transcript viewer**: Scrollable, full transcript for human review.
 
-Supervisors can trigger AI analysis from the session page. While this assignment uses a simple action behind the scenes to `/api/sessions/[id]/analyze`, the backend:
-
-- Sends the transcript plus the Shamiri rubric to Groq (LLaMA 3.3).
-- Instructs the model via the **system prompt** to return **only valid JSON** in a fixed shape.
-- Validates the response with **Zod** against a strict schema.
-- Persists the structured analysis and updates the session status (`PROCESSED` or `RISK`).
+Supervisors can trigger an automated analysis from the session page. The backend validates the structured result and updates the session status before the supervisor records a final decision.
 
 ### Human-in-the-loop Supervisor review
 
@@ -114,55 +120,30 @@ Supervisors can trigger AI analysis from the session page. While this assignment
 
 ---
 
-## Deployment (Vercel + Supabase)
+## Project structure
 
-1. **Create a Supabase project** and copy the Postgres connection strings (Settings → Database).
-2. **Push your repo to GitHub**.
-3. **Create a new Vercel project** from the repo.
-4. In Vercel project settings, add environment variables:
-
-   - `DATABASE_URL`
-   - `DIRECT_URL` (if needed for migrations)
-   - `GROQ_API_KEY`
-   - `NEXT_PUBLIC_BASE_URL` = your production URL (e.g., `https://shamiri-supervisor.vercel.app`)
-   - `ADMIN_EMAIL` and `ADMIN_PASSWORD` (for mock sign-in)
-   - `SESSION_TIME_ZONE` (optional, e.g. `Africa/Nairobi` for date formatting; defaults to `Africa/Nairobi`)
-
-5. Run migrations (one-off, locally or in build):
-
-   ```bash
-   npx prisma migrate deploy
-   npx prisma generate
-   ```
-
-6. **Seed the production database** (run locally, once):
-
-   ```bash
-   cp env.production.example .env.production
-   # Edit .env.production – paste DATABASE_URL and DIRECT_URL from Vercel
-   npm run prisma:seed:prod
-   ```
-
-7. Trigger a deployment; the app should be available at your Vercel URL.
+- `src/app` – Next.js routes (dashboard, session detail, sign-in).
+- `src/app/sessions/[id]` – Session detail page, insight card, review form, and analyze button.
+- `src/lib` – Shared helpers (including analysis prompt and types).
+- `prisma` – Prisma schema and seed scripts.
 
 ---
 
-## AI usage notes (for submission)
+## Write-up
 
-- **AI-generated code**:
-  - Portions of boilerplate (Next.js + Tailwind layout patterns).
-  - Initial drafts of Prisma model definitions and Zod schemas.
-  - Skeleton versions of API routes and UI components.
-- **Hand-written / heavily edited**:
-  - Final Prisma schema reflecting Shamiri entities (Supervisor, Fellow, Group, Session, AIAnalysis, SupervisorReview).
-  - AI prompt engineering to encode the 3-metric rubric and risk rules.
-  - Error handling, type-safety, and wiring between frontend, backend, and database.
-  - UX details (copy aimed at non-technical Tier 2 Supervisors, African context-friendly).
+**What problem the project solves**  
+Supervisors cannot listen to every group therapy session, yet they need to ensure quality, protocol adherence, and safety. This tool gives them a single place to see completed sessions, read a structured summary and scores, and record a final decision. The human always confirms or overrides the automated analysis.
 
-**Verification steps**:
+**One technical decision**  
+The analysis pipeline is built as a strict contract: the backend sends a detailed rubric to the LLM, requires JSON-only output, validates it with Zod, and stores a normalised structure (summary, three scored dimensions, risk flag and quote). That keeps the UI simple, the database consistent, and makes it straightforward to swap or tune the model without touching the rest of the stack.
 
-- Type-check and lint the code (`npm run lint`).
-- Manual testing:
-  - Load dashboard and confirm at least 10 sessions are visible.
-  - Open a session; trigger AI analysis and confirm the insight card renders with scores and risk.
-  - Mark sessions as Safe / Risk / Needs discussion and ensure the dashboard and detail views reflect the updated status.
+**One thing I would do differently**  
+I would invest more in feedback loops: tracking how often supervisors override the model (e.g. Risk → Safe with a note), where the model systematically over- or under-flags, and feeding that back into prompt tuning and product design so the tool improves over time.
+
+---
+
+## AI usage
+
+- **AI-generated:** Boilerplate patterns (Next.js + Tailwind), early drafts of Prisma models and Zod schemas, skeleton API routes and UI components.
+- **Hand-written / heavily edited:** Final Prisma schema and entity relationships, analysis prompt and rubric encoding, error handling and type-safety, wiring between frontend, API, and database, UX copy and flow.
+- **Verification:** `npm run lint` for type-check and lint; manual testing of dashboard, session detail, analysis trigger, and supervisor override flow.
